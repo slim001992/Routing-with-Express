@@ -4,23 +4,26 @@ var app= express();
 var date = new Date();
 var current_hour = date.getHours();
 
+app.use('/', (req, res, next)=>{
+if ( current_hour<8 || current_hour>17 )
+ // 503 Service Unavailable
+  res.status(503).send('Our office is not open now');
+else {
+  next();
+}
+});
+
 app.use(express.static(path.join(__dirname, '/public/')));
 
-if ( (current_hour>8)&&(current_hour<17) ) {
-  app.get('/', (req,res)=>{
+app.get('/', (req,res)=>{
      res.sendFile(path.join(__dirname, 'public/home.html'));
-   })
-   app.get('/ourservices', (req,res)=>{
+   });
+app.get('/ourservices', (req,res)=>{
      res.sendFile(path.join(__dirname, 'public/ourservices.html'));
-   })
-   app.get('/contact', (req,res)=>{
+   });
+app.get('/contact', (req,res)=>{
      res.sendFile(path.join(__dirname, 'public/contact.html'));
-   })
-  }
-  else
-    app.get(['/','/ourservices','/contact'], ( req, res ) => {
-    res.send('Our office is not open now');
-  });
+   });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
